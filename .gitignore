@@ -56,3 +56,4 @@ jspm_packages/
 
 # Built frontend assets
 site_manager/public/manager/
+site_manager/www/manager.html
