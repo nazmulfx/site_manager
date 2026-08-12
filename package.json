@@ -1,0 +1,16 @@
+{
+  "name": "site_manager",
+  "version": "1.0.0",
+  "description": "an app to manage bench and site",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd manager && yarn install",
+    "dev": "cd manager && yarn dev",
+    "build": "cd manager && yarn build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
