@@ -6,6 +6,10 @@ import glob
 import frappe
 from frappe import _
 
+def get_bench_root():
+	"""Returns the root directory of the current Frappe bench."""
+	return os.path.abspath(os.path.join(frappe.get_app_path("frappe"), "..", "..", ".."))
+
 @frappe.whitelist()
 def get_system_info():
 	"""
@@ -49,8 +53,7 @@ def get_system_info():
 	except Exception:
 		pass
 
-	# Get Current Bench Path
-	current_bench = os.path.abspath(os.path.join(frappe.get_app_path("frappe"), "..", ".."))
+	current_bench = get_bench_root()
 
 	return {
 		"python_executables": pythons,
@@ -65,7 +68,7 @@ def get_benches(search_dir=None):
 	Scans directory for valid Frappe bench folders.
 	"""
 	if not search_dir:
-		current_bench = os.path.abspath(os.path.join(frappe.get_app_path("frappe"), "..", ".."))
+		current_bench = get_bench_root()
 		search_dir = os.path.dirname(current_bench)
 
 	benches = []
@@ -204,7 +207,7 @@ def create_bench(bench_name, frappe_branch="version-16", python_path="python3", 
 		frappe.throw(_("Bench name is required"))
 
 	if not parent_dir:
-		current_bench = os.path.abspath(os.path.join(frappe.get_app_path("frappe"), "..", ".."))
+		current_bench = get_bench_root()
 		parent_dir = os.path.dirname(current_bench)
 
 	target_path = os.path.join(parent_dir, bench_name)
