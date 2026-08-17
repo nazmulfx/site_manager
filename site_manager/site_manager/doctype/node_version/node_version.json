@@ -8,8 +8,9 @@
  "engine": "InnoDB",
  "field_order": [
   "node_version",
-  "is_default",
+  "installed_node_version",
   "column_break_lvgh",
+  "is_default",
   "path"
  ],
  "fields": [
@@ -39,12 +40,18 @@
    "in_list_view": 1,
    "label": "Executable Path",
    "read_only": 1
+  },
+  {
+   "fieldname": "installed_node_version",
+   "fieldtype": "Data",
+   "label": "Installed Node Version",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-17 16:50:24.586734",
+ "modified": "2026-08-17 17:10:33.700781",
  "modified_by": "Administrator",
  "module": "Site Manager",
  "name": "Node Version",

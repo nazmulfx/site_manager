@@ -9,8 +9,9 @@
  "engine": "InnoDB",
  "field_order": [
   "python_version",
-  "is_default",
+  "installed_python_version",
   "column_break_lvgh",
+  "is_default",
   "path"
  ],
  "fields": [
@@ -40,12 +41,18 @@
    "in_list_view": 1,
    "label": "Executable Path",
    "read_only": 1
+  },
+  {
+   "fieldname": "installed_python_version",
+   "fieldtype": "Data",
+   "label": "Installed Python Version",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-17 16:50:15.524997",
+ "modified": "2026-08-17 17:10:15.285604",
  "modified_by": "Administrator",
  "module": "Site Manager",
  "name": "Python Version",

@@ -1,9 +1,10 @@
-# Copyright (c) 2026, Nazmul Hossain and contributors
-# For license information, please see license.txt
-
-# import frappe
+import frappe
 from frappe.model.document import Document
+from site_manager.site_manager.doctype.node_version.node_version import fetch_and_sync_node_versions
 
 
 class SiteManagerSettings(Document):
-	pass
+	@frappe.whitelist()
+	def fetch_node_version(self):
+		return fetch_and_sync_node_versions()
+
