@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:site_name",
- "creation": "2026-08-12 16:15:00.000000",
+ "creation": "2026-08-12 16:15:00",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -11,7 +11,9 @@
   "db_name",
   "admin_password",
   "status",
-  "port"
+  "port",
+  "app_list_section",
+  "table_wuoq"
  ],
  "fields": [
   {
@@ -53,11 +55,21 @@
    "fieldname": "port",
    "fieldtype": "Int",
    "label": "Port"
+  },
+  {
+   "fieldname": "app_list_section",
+   "fieldtype": "Section Break",
+   "label": "App List"
+  },
+  {
+   "fieldname": "table_wuoq",
+   "fieldtype": "Table",
+   "options": "Installed App"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-08-12 16:15:00.000000",
+ "modified": "2026-08-17 17:43:22.373266",
  "modified_by": "Administrator",
  "module": "Site Manager",
  "name": "Site",
@@ -77,6 +89,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

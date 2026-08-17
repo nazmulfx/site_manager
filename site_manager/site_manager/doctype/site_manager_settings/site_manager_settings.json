@@ -9,7 +9,9 @@
   "node_section",
   "fetch_node_version",
   "python_section",
-  "fetch_python_version"
+  "fetch_python_version",
+  "section_break_zhil",
+  "fetch_bench_list"
  ],
  "fields": [
   {
@@ -31,13 +33,22 @@
    "fieldname": "fetch_python_version",
    "fieldtype": "Button",
    "label": "Fetch Python Version"
+  },
+  {
+   "fieldname": "section_break_zhil",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "fetch_bench_list",
+   "fieldtype": "Button",
+   "label": "Fetch Bench List"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-08-17 16:16:05.005968",
+ "modified": "2026-08-17 17:22:14.216797",
  "modified_by": "Administrator",
  "module": "Site Manager",
  "name": "Site Manager Settings",
