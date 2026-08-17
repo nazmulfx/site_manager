@@ -68,5 +68,84 @@ frappe.ui.form.on("Bench", {
 				});
 			}).addClass("btn-primary");
 		}
+	},
+
+	get_app(frm) {
+		if (!frm.doc.app_name_or_link) {
+			frappe.msgprint({
+				title: __("Missing Information"),
+				indicator: "orange",
+				message: __("Please enter App Name or Link before clicking Get App.")
+			});
+			return;
+		}
+
+		const event_name = "bench_shell_log";
+
+		const d = new frappe.ui.Dialog({
+			title: __("Live Shell Output - Bench Get App"),
+			size: "large",
+			fields: [{ fieldtype: "HTML", fieldname: "log_html" }],
+			primary_action_label: __("Close"),
+			primary_action() {
+				frappe.realtime.off(event_name);
+				d.hide();
+			}
+		});
+
+		d.show();
+
+		d.$wrapper.find(".modal-dialog").css({
+			"max-width": "920px",
+			"width": "90%"
+		});
+
+		const $wrapper = d.get_field("log_html").$wrapper;
+		$wrapper.html(`
+			<div style="background: #121212; border-radius: 8px; border: 1px solid #2a2a2a; overflow: hidden;">
+				<div style="background: #1e1e1e; padding: 8px 15px; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: space-between;">
+					<span style="color: #aaa; font-size: 12px; font-family: monospace;">bash &bull; get_app.sh</span>
+					<span style="display: inline-block; width: 10px; height: 10px; background: #00ff66; border-radius: 50%; box-shadow: 0 0 8px #00ff66;"></span>
+				</div>
+				<div id="live-bench-log" style="
+					color: #4af626;
+					font-family: 'Fira Code', 'Courier New', Courier, monospace;
+					font-size: 13.5px;
+					padding: 18px;
+					height: 460px;
+					overflow-y: auto;
+					white-space: pre-wrap;
+					line-height: 1.5;
+				">$ Executing get_app.sh...\n\n</div>
+			</div>
+		`);
+
+		const $log = $wrapper.find("#live-bench-log");
+
+		frappe.realtime.on(event_name, (data) => {
+			if (data && data.line) {
+				$log.append(frappe.utils.escape_html(data.line));
+				$log.scrollTop($log[0].scrollHeight);
+			}
+		});
+
+		frm.call({
+			doc: frm.doc,
+			method: "run_get_app",
+			callback(r) {
+				frappe.realtime.off(event_name);
+				if (!r.exc) {
+					$log.append("\n[SUCCESS] App added successfully to bench.\n");
+					$log.scrollTop($log[0].scrollHeight);
+					frappe.msgprint({
+						title: __("Get App Complete"),
+						indicator: "green",
+						message: __("Successfully fetched app and updated bench apps table.")
+					});
+					frm.reload_doc();
+				}
+			}
+		});
 	}
 });
+

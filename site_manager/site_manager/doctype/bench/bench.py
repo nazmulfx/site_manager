@@ -206,6 +206,53 @@ class Bench(Document):
 		frappe.db.commit()
 		return {"path": self.path, "frappe_version": self.frappe_version, "status": self.status}
 
+	@frappe.whitelist()
+	def run_get_app(self, app_name_or_link=None, branch_or_version=None):
+		app_input = app_name_or_link or self.app_name_or_link
+		branch_input = branch_or_version or self.branch_or_version
+
+		if not app_input:
+			frappe.throw(frappe._("App Name or Link is required."))
+
+		b_name = self.bench_name.strip()
+		home_dir = os.path.expanduser("~")
+		target_path = self.path or os.path.join(home_dir, b_name)
+
+		if not os.path.exists(target_path):
+			frappe.throw(frappe._("Bench directory path does not exist at {0}").format(target_path))
+
+		script_path = os.path.join(frappe.get_app_path("site_manager"), "scripts", "get_app.sh")
+		if not os.path.exists(script_path):
+			frappe.throw(frappe._("Shell script not found at {0}").format(script_path))
+
+		args = [target_path, app_input.strip()]
+		if branch_input and branch_input.strip():
+			args.append(branch_input.strip())
+
+		return_code, full_output, result_lines = run_bench_shell_script_realtime(
+			script_path, args, event_name="bench_shell_log"
+		)
+		if return_code != 0:
+			frappe.throw(frappe._("Failed to execute bench get-app: {0}").format(full_output))
+
+		# Inspect and update apps child table
+		apps_list = inspect_bench_apps(target_path)
+		self.set("apps", [])
+		for app_info in apps_list:
+			self.append("apps", app_info)
+
+		# Clear input fields after successful addition
+		self.app_name_or_link = ""
+		self.branch_or_version = ""
+
+		self.save(ignore_permissions=True)
+		frappe.db.commit()
+		return {"status": "success", "apps": apps_list}
+
+	@frappe.whitelist()
+	def get_app(self, app_name_or_link=None, branch_or_version=None):
+		return self.run_get_app(app_name_or_link, branch_or_version)
+
 
 @frappe.whitelist()
 def fetch_and_sync_benches():

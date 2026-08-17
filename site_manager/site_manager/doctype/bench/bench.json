@@ -14,6 +14,12 @@
   "path",
   "frappe_version",
   "bench_version",
+  "app_installation_section",
+  "app_name_or_link",
+  "column_break_fzdd",
+  "branch_or_version",
+  "column_break_ejyu",
+  "get_app",
   "app_list_section",
   "apps"
  ],
@@ -82,6 +88,34 @@
    "fieldtype": "Table",
    "label": "Apps",
    "options": "Bench Added App"
+  },
+  {
+   "fieldname": "app_installation_section",
+   "fieldtype": "Section Break",
+   "label": "App Installation"
+  },
+  {
+   "fieldname": "app_name_or_link",
+   "fieldtype": "Data",
+   "label": "App Name or LInk"
+  },
+  {
+   "fieldname": "column_break_fzdd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "branch_or_version",
+   "fieldtype": "Data",
+   "label": "Branch or Version"
+  },
+  {
+   "fieldname": "column_break_ejyu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "get_app",
+   "fieldtype": "Button",
+   "label": "Get App"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -91,7 +125,7 @@
    "link_fieldname": "bench"
   }
  ],
- "modified": "2026-08-17 17:50:27.764493",
+ "modified": "2026-08-17 19:21:21.939246",
  "modified_by": "Administrator",
  "module": "Site Manager",
  "name": "Bench",

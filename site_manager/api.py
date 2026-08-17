@@ -262,3 +262,30 @@ def create_site(bench_path, site_name, admin_password="admin"):
 			frappe.throw(_("Error creating site: {0}").format(res.stderr or res.stdout))
 	except Exception as e:
 		frappe.throw(_("Site creation failed: {0}").format(str(e)))
+
+@frappe.whitelist()
+def get_app_for_bench(bench_path, app_name_or_link, branch_or_version=None):
+	"""
+	Executes bench get-app in the specified bench directory.
+	"""
+	if not os.path.exists(bench_path) or not is_valid_bench(bench_path):
+		frappe.throw(_("Invalid bench directory path: {0}").format(bench_path))
+
+	if not app_name_or_link:
+		frappe.throw(_("App name or link is required"))
+
+	bench_doc = frappe.db.get_value("Bench", {"path": bench_path}, "name")
+	if bench_doc:
+		doc = frappe.get_doc("Bench", bench_doc)
+		return doc.run_get_app(app_name_or_link=app_name_or_link, branch_or_version=branch_or_version)
+	else:
+		script_path = os.path.join(frappe.get_app_path("site_manager"), "scripts", "get_app.sh")
+		args = [bench_path, app_name_or_link]
+		if branch_or_version and branch_or_version.strip():
+			args.append(branch_or_version.strip())
+
+		from site_manager.site_manager.doctype.bench.bench import run_bench_shell_script_realtime
+		return_code, full_output, result_lines = run_bench_shell_script_realtime(script_path, args)
+		if return_code != 0:
+			frappe.throw(_("Failed to execute bench get-app: {0}").format(full_output))
+		return {"status": "success", "message": f"App {app_name_or_link} fetched successfully"}
