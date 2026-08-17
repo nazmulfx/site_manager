@@ -149,44 +149,62 @@ class Bench(Document):
 			frappe.throw(frappe._("Bench Name is required."))
 
 		b_name = self.bench_name.strip()
-		parent_dir = os.path.dirname(self.path) if self.path else os.path.dirname(os.path.abspath(frappe.get_app_path("frappe")))
-		target_path = self.path or os.path.join(parent_dir, b_name)
+		home_dir = os.path.expanduser("~")
+		target_path = self.path or os.path.join(home_dir, b_name)
+		self.path = target_path
 
-		if not os.path.exists(target_path):
-			script_path = os.path.join(frappe.get_app_path("site_manager"), "scripts", "create_bench.sh")
-			if not os.path.exists(script_path):
-				frappe.throw(frappe._("Shell script not found at {0}").format(script_path))
-
-			f_branch = self.frappe_version or "version-16"
-			py_path = ""
-			if self.python_version:
-				py_path = frappe.db.get_value("Python Version", self.python_version, "path") or ""
-
-			node_ver = self.node_version or ""
-
-			return_code, full_output, result_lines = run_bench_shell_script_realtime(
-				script_path, [b_name, f_branch, py_path, node_ver, parent_dir]
-			)
-			if return_code != 0 or not result_lines:
-				frappe.throw(frappe._("Failed to initialize bench {0}: {1}").format(b_name, full_output))
-
-			parts = result_lines[-1].split("|")
-			if len(parts) >= 6:
-				self.path = parts[1]
-				self.frappe_version = parts[2]
-				self.status = parts[5]
-				if len(parts) >= 7:
-					self.bench_version = parts[6]
-		else:
-			self.path = target_path
+		if os.path.exists(target_path):
 			if not self.status:
 				self.status = "Stopped"
+			apps_list = inspect_bench_apps(target_path)
+			if apps_list and not self.apps:
+				self.set("apps", [])
+				for app_info in apps_list:
+					self.append("apps", app_info)
+
+	@frappe.whitelist()
+	def execute_initialization(self):
+		b_name = self.bench_name.strip()
+		home_dir = os.path.expanduser("~")
+		target_path = self.path or os.path.join(home_dir, b_name)
+		parent_dir = os.path.dirname(target_path) or home_dir
+		self.path = target_path
+
+
+		script_path = os.path.join(frappe.get_app_path("site_manager"), "scripts", "create_bench.sh")
+		if not os.path.exists(script_path):
+			frappe.throw(frappe._("Shell script not found at {0}").format(script_path))
+
+		f_branch = self.frappe_version or "version-16"
+		py_path = ""
+		if self.python_version:
+			py_path = frappe.db.get_value("Python Version", self.python_version, "path") or ""
+
+		node_ver = self.node_version or ""
+
+		return_code, full_output, result_lines = run_bench_shell_script_realtime(
+			script_path, [b_name, f_branch, py_path, node_ver, parent_dir]
+		)
+		if return_code != 0 or not result_lines:
+			frappe.throw(frappe._("Failed to initialize bench {0}: {1}").format(b_name, full_output))
+
+		parts = result_lines[-1].split("|")
+		if len(parts) >= 6:
+			self.path = parts[1]
+			self.frappe_version = parts[2]
+			self.status = parts[5]
+			if len(parts) >= 7:
+				self.bench_version = parts[6]
 
 		# Inspect and populate apps child table
 		apps_list = inspect_bench_apps(target_path)
 		self.set("apps", [])
 		for app_info in apps_list:
 			self.append("apps", app_info)
+
+		self.save(ignore_permissions=True)
+		frappe.db.commit()
+		return {"path": self.path, "frappe_version": self.frappe_version, "status": self.status}
 
 
 @frappe.whitelist()

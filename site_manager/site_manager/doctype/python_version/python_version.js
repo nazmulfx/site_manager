@@ -1,66 +1,72 @@
 frappe.ui.form.on("Python Version", {
-	setup(frm) {
-		frappe.realtime.on("python_version_shell_log", (data) => {
-			if (data && data.line) {
-				if ($("#live-python-log").length) {
-					$("#live-python-log").append(frappe.utils.escape_html(data.line));
-					$("#live-python-log").scrollTop($("#live-python-log")[0].scrollHeight);
-				}
-			}
-		});
-	},
-	before_save(frm) {
-		if (frm.is_new()) {
-			const d = new frappe.ui.Dialog({
-				title: __("Live Shell Log - Python Installation"),
-				size: "large",
-				fields: [{ fieldtype: "HTML", fieldname: "log_html" }],
-				primary_action_label: __("Close"),
-				primary_action() {
-					frappe.realtime.off("python_version_shell_log");
-					d.hide();
-				}
-			});
+	refresh(frm) {
+		if (!frm.is_new()) {
+			frm.add_custom_button(__("Execute Installation"), function() {
+				const event_name = "python_version_shell_log";
 
-			d.show();
+				const d = new frappe.ui.Dialog({
+					title: __("Live Shell Output - Python Installation"),
+					size: "large",
+					fields: [{ fieldtype: "HTML", fieldname: "log_html" }],
+					primary_action_label: __("Close"),
+					primary_action() {
+						frappe.realtime.off(event_name);
+						d.hide();
+					}
+				});
 
-			d.$wrapper.find(".modal-dialog").css({
-				"max-width": "920px",
-				"width": "90%"
-			});
+				d.show();
 
-			const $wrapper = d.get_field("log_html").$wrapper;
-			$wrapper.html(`
-				<div style="background: #121212; border-radius: 8px; border: 1px solid #2a2a2a; overflow: hidden;">
-					<div style="background: #1e1e1e; padding: 8px 15px; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: space-between;">
-						<span style="color: #aaa; font-size: 12px; font-family: monospace;">bash &bull; install_python_version.sh</span>
-						<span style="display: inline-block; width: 10px; height: 10px; background: #00ff66; border-radius: 50%; box-shadow: 0 0 8px #00ff66;"></span>
+				d.$wrapper.find(".modal-dialog").css({
+					"max-width": "920px",
+					"width": "90%"
+				});
+
+				const $wrapper = d.get_field("log_html").$wrapper;
+				$wrapper.html(`
+					<div style="background: #121212; border-radius: 8px; border: 1px solid #2a2a2a; overflow: hidden;">
+						<div style="background: #1e1e1e; padding: 8px 15px; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: space-between;">
+							<span style="color: #aaa; font-size: 12px; font-family: monospace;">bash &bull; install_python_version.sh</span>
+							<span style="display: inline-block; width: 10px; height: 10px; background: #00ff66; border-radius: 50%; box-shadow: 0 0 8px #00ff66;"></span>
+						</div>
+						<div id="live-python-log" style="
+							color: #4af626;
+							font-family: 'Fira Code', 'Courier New', Courier, monospace;
+							font-size: 13.5px;
+							padding: 18px;
+							height: 460px;
+							overflow-y: auto;
+							white-space: pre-wrap;
+							line-height: 1.5;
+						">$ Executing install_python_version.sh...\n\n</div>
 					</div>
-					<div id="live-python-log" style="
-						color: #4af626;
-						font-family: 'Fira Code', 'Courier New', Courier, monospace;
-						font-size: 13.5px;
-						padding: 18px;
-						height: 460px;
-						overflow-y: auto;
-						white-space: pre-wrap;
-						line-height: 1.5;
-					">$ Executing install_python_version.sh...\n\n</div>
-				</div>
-			`);
-			frm._live_dialog = d;
-		}
-	},
-	after_save(frm) {
-		if (frm._live_dialog) {
-			$("#live-python-log").append("\n[SUCCESS] Installation & verification complete.\n");
-			$("#live-python-log").scrollTop($("#live-python-log")[0].scrollHeight);
-			setTimeout(() => {
-				if (frm._live_dialog) {
-					frm._live_dialog.hide();
-					frm._live_dialog = null;
-				}
-			}, 1200);
+				`);
+
+				const $log = $wrapper.find("#live-python-log");
+
+				frappe.realtime.on(event_name, (data) => {
+					if (data && data.line) {
+						$log.append(frappe.utils.escape_html(data.line));
+						$log.scrollTop($log[0].scrollHeight);
+					}
+				});
+
+				frm.call({
+					doc: frm.doc,
+					method: "execute_installation",
+					callback(r) {
+						frappe.realtime.off(event_name);
+						$log.append("\n[SUCCESS] Python installation & verification complete.\n");
+						$log.scrollTop($log[0].scrollHeight);
+						frappe.msgprint({
+							title: __("Installation Complete"),
+							indicator: "green",
+							message: __("Successfully installed Python version.")
+						});
+						frm.reload_doc();
+					}
+				});
+			}).addClass("btn-primary");
 		}
 	}
 });

@@ -52,6 +52,8 @@ class NodeVersion(Document):
 		if not self.node_version:
 			frappe.throw(frappe._("Node Version is required."))
 
+	@frappe.whitelist()
+	def execute_installation(self):
 		ver = self.node_version.strip()
 		is_def_str = "1" if self.is_default else "0"
 
@@ -67,16 +69,17 @@ class NodeVersion(Document):
 		if len(parts) >= 2:
 			self.installed_node_version = parts[0]
 			self.path = parts[1]
-		else:
-			frappe.throw(frappe._("Invalid response from install script: {0}").format(full_output))
 
-	def on_update(self):
 		if self.is_default:
-			script_path = os.path.join(frappe.get_app_path("site_manager"), "scripts", "set_default_node_version.sh")
-			if os.path.exists(script_path):
+			def_script = os.path.join(frappe.get_app_path("site_manager"), "scripts", "set_default_node_version.sh")
+			if os.path.exists(def_script):
 				target_ver = self.installed_node_version or self.node_version
-				run_shell_script_realtime(script_path, [target_ver])
+				run_shell_script_realtime(def_script, [target_ver])
 			frappe.db.sql("UPDATE `tabNode Version` SET is_default = 0 WHERE name != %s", self.name)
+
+		self.save(ignore_permissions=True)
+		frappe.db.commit()
+		return {"installed_node_version": self.installed_node_version, "path": self.path}
 
 
 @frappe.whitelist()
@@ -130,5 +133,3 @@ def fetch_and_sync_node_versions():
 
 	frappe.db.commit()
 	return synced
-
-

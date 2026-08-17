@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Default search directory is parent folder of current bench
-SEARCH_DIR="${1:-$(dirname $(pwd))}"
+# Default search directory is home directory ($HOME)
+SEARCH_DIR="${1:-$HOME}"
+
 
 echo "Searching for bench directories in: $SEARCH_DIR..."
 

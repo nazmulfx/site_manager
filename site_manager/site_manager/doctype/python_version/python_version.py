@@ -52,6 +52,8 @@ class PythonVersion(Document):
 		if not self.python_version:
 			frappe.throw(frappe._("Python Version is required."))
 
+	@frappe.whitelist()
+	def execute_installation(self):
 		ver = self.python_version.strip()
 		is_def_str = "1" if self.is_default else "0"
 
@@ -67,17 +69,18 @@ class PythonVersion(Document):
 		if len(parts) >= 2:
 			self.installed_python_version = parts[0]
 			self.path = parts[1]
-		else:
-			frappe.throw(frappe._("Invalid response from install script: {0}").format(full_output))
 
-	def on_update(self):
 		if self.is_default:
-			script_path = os.path.join(frappe.get_app_path("site_manager"), "scripts", "set_default_python_version.sh")
-			if os.path.exists(script_path):
+			def_script = os.path.join(frappe.get_app_path("site_manager"), "scripts", "set_default_python_version.sh")
+			if os.path.exists(def_script):
 				target_ver = self.installed_python_version or self.python_version
 				target_path = self.path or ""
-				run_python_shell_script_realtime(script_path, [target_ver, target_path])
+				run_python_shell_script_realtime(def_script, [target_ver, target_path])
 			frappe.db.sql("UPDATE `tabPython Version` SET is_default = 0 WHERE name != %s", self.name)
+
+		self.save(ignore_permissions=True)
+		frappe.db.commit()
+		return {"installed_python_version": self.installed_python_version, "path": self.path}
 
 
 @frappe.whitelist()

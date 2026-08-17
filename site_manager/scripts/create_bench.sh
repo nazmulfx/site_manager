@@ -3,7 +3,8 @@ BENCH_NAME="$1"
 FRAPPE_BRANCH="${2:-version-16}"
 PYTHON_PATH="$3"
 NODE_VERSION="$4"
-PARENT_DIR="${5:-$(dirname $(pwd))}"
+PARENT_DIR="${5:-$HOME}"
+
 
 if [ -z "$BENCH_NAME" ]; then
     echo "Error: Bench name is required"
@@ -21,7 +22,7 @@ else
     # Handle NVM Node version if specified
     if [ -n "$NODE_VERSION" ] && [ -s "$HOME/.nvm/nvm.sh" ]; then
         source "$HOME/.nvm/nvm.sh"
-        nvm use "$NODE_VERSION" 2>/dev/null || true
+        nvm use "$NODE_VERSION" 2>/dev/null || nvm install "$NODE_VERSION" 2>/dev/null || true
     fi
 
     PY_ARG=""

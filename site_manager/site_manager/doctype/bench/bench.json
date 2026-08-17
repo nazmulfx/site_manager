@@ -31,13 +31,14 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Directory Path",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "frappe_version",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Frappe Version"
+   "label": "Frappe Version",
+   "read_only": 1
   },
   {
    "fieldname": "python_version",
@@ -58,7 +59,8 @@
    "fieldname": "node_version",
    "fieldtype": "Link",
    "label": "Node Version",
-   "options": "Node Version"
+   "options": "Node Version",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_nifz",
@@ -67,7 +69,8 @@
   {
    "fieldname": "bench_version",
    "fieldtype": "Data",
-   "label": "Bench Version"
+   "label": "Bench Version",
+   "read_only": 1
   },
   {
    "fieldname": "app_list_section",
@@ -88,7 +91,7 @@
    "link_fieldname": "bench"
   }
  ],
- "modified": "2026-08-17 17:44:56.039120",
+ "modified": "2026-08-17 17:50:27.764493",
  "modified_by": "Administrator",
  "module": "Site Manager",
  "name": "Bench",
